@@ -1,8 +1,8 @@
 {
   "version": "1.0.0",
   "initialized_at": "2026-11-20T21:55:00Z",
-  "total_runs": 3,
-  "total_commits_generated": 6,
+  "total_runs": 4,
+  "total_commits_generated": 9,
   "completed_tasks": [
     {
       "id": "HEURISTIC_RESPONSIVE_TOUCH_TARGETS",
@@ -51,6 +51,30 @@
       "file_path": "tests/test_accessibility_and_css.py",
       "commit_hash": "fa6c7f0",
       "timestamp": "2026-11-20T16:20:39.641046+00:00"
+    },
+    {
+      "id": "HEURISTIC_KEYBOARD_SHORTCUTS",
+      "category": "ACCESSIBILITY",
+      "description": "Add global keyboard shortcuts (Escape to dismiss modal, / to focus search)",
+      "file_path": "src/frontend/js/app.js",
+      "commit_hash": "9021450",
+      "timestamp": "2026-11-20T16:24:18.210077+00:00"
+    },
+    {
+      "id": "HEURISTIC_FORMAT_RELATIVE_TIME",
+      "category": "UI_POLISH",
+      "description": "Add human-readable formatRelativeTime utility for live telemetry feeds",
+      "file_path": "src/frontend/js/utils/formatters.js",
+      "commit_hash": "18b3f4d",
+      "timestamp": "2026-11-20T16:24:19.266442+00:00"
+    },
+    {
+      "id": "HEURISTIC_TEST_FORMATTERS",
+      "category": "TEST_EXPANSION",
+      "description": "Add automated unit tests verifying formatters and helper presence",
+      "file_path": "tests/test_frontend_logic.py",
+      "commit_hash": "93639cf",
+      "timestamp": "2026-11-20T16:24:20.319886+00:00"
     }
   ],
   "inspected_files": {},
