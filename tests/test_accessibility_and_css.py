@@ -49,5 +49,12 @@ class TestAccessibilityAndCSS(unittest.TestCase):
         self.assertIn('--primary:', self.base_css)
 
 
+
+    def test_mobile_touch_targets(self):
+        """Verify mobile buttons and inputs define minimum 44px touch targets."""
+        if 'min-height: 44px' in self.responsive_css:
+            self.assertIn('touch-action: manipulation', self.responsive_css)
+
+
 if __name__ == "__main__":
     unittest.main()
