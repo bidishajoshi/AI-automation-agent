@@ -26,6 +26,7 @@ class App {
     this.setupModal();
     this.setupSearch();
     this.setupFilters();
+    this.setupKeyboardShortcuts();
     await this.refreshData();
   }
 
@@ -148,6 +149,23 @@ class App {
         }, 200);
       });
     }
+  }
+
+
+  setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modal = qs('#taskModal');
+        if (modal && modal.classList.contains('open')) {
+          modal.classList.remove('open');
+          modal.setAttribute('aria-hidden', 'true');
+        }
+      } else if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+        e.preventDefault();
+        const search = qs('#globalSearch');
+        if (search) search.focus();
+      }
+    });
   }
 
   setupFilters() {
