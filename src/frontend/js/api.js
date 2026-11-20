@@ -3,6 +3,20 @@
  */
 
 export class ApiClient {
+
+  async fetchWithRetry(url, options = {}, maxRetries = 2, delayMs = 500) {
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await fetch(url, options);
+        if (response.ok) return response;
+        if (attempt === maxRetries) throw new Error(`HTTP ${response.status}`);
+      } catch (err) {
+        if (attempt === maxRetries) throw err;
+        await new Promise(r => setTimeout(r, delayMs * Math.pow(2, attempt)));
+      }
+    }
+  }
+
   constructor(baseUrl = '') {
     this.baseUrl = baseUrl;
     this.mockTasks = [
