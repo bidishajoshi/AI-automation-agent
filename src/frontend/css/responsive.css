@@ -72,6 +72,11 @@
   .live-status-pill {
     padding: 4px;
   }
+  /* WCAG 2.1 AA Touch Targets - Min 44px */
+  .btn, .btn-icon, .form-input, .select-input {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
 }
 
 /* Small Handhelds (< 480px) */
