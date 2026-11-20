@@ -38,5 +38,13 @@ class TestFrontendLogic(unittest.TestCase):
         self.assertIn("ACCESSIBILITY", content)
 
 
+
+    def test_formatters_presence(self):
+        fmt_path = Path(__file__).resolve().parent.parent / "src" / "frontend" / "js" / "utils" / "formatters.js"
+        content = fmt_path.read_text(encoding="utf-8")
+        self.assertIn("formatRelativeTime", content)
+        self.assertIn("formatCategory", content)
+
+
 if __name__ == "__main__":
     unittest.main()
