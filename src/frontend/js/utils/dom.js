@@ -41,3 +41,19 @@ export const showToast = (message, type = 'success', duration = 3000) => {
     setTimeout(() => toast.remove(), 250);
   }, duration);
 };
+
+export const createElementWithAttributes = (tag, attributes = {}, children = []) => {
+  const el = document.createElement(tag);
+  Object.entries(attributes).forEach(([key, val]) => {
+    if (val !== undefined && val !== null) {
+      if (key === 'className') el.className = val;
+      else if (key === 'textContent') el.textContent = val;
+      else el.setAttribute(key, val);
+    }
+  });
+  children.forEach(child => {
+    if (typeof child === 'string') el.appendChild(document.createTextNode(child));
+    else if (child instanceof Node) el.appendChild(child);
+  });
+  return el;
+};
