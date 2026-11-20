@@ -115,22 +115,143 @@ class HeuristicEngine:
                     "apply_fn": self._apply_backend_status_filter
                 })
 
-        # 7. Test Expansion: Expand test suite to assert new touch target rule
-        test_css_path = self.workspace_root / "tests" / "test_accessibility_and_css.py"
-        if test_css_path.exists() and "HEURISTIC_TEST_EXPANSION_A11Y" not in completed_task_ids:
-            content = test_css_path.read_text(encoding="utf-8")
-            if "test_mobile_touch_targets" not in content:
+        # 7. Frontend: Add keyboard shortcut handling (Esc to close modal, / to focus search)
+        app_js_path = self.workspace_root / "src" / "frontend" / "js" / "app.js"
+        if app_js_path.exists() and "HEURISTIC_KEYBOARD_SHORTCUTS" not in completed_task_ids:
+            content = app_js_path.read_text(encoding="utf-8")
+            if "setupKeyboardShortcuts" not in content:
                 opportunities.append({
-                    "id": "HEURISTIC_TEST_EXPANSION_A11Y",
-                    "file_path": "tests/test_accessibility_and_css.py",
+                    "id": "HEURISTIC_KEYBOARD_SHORTCUTS",
+                    "file_path": "src/frontend/js/app.js",
+                    "category": "ACCESSIBILITY",
+                    "task_summary": "Add global keyboard shortcuts (Escape to dismiss modal, / to focus search)",
+                    "commit_message": "feat(a11y): add global keyboard accessibility shortcuts for modal and search",
+                    "justification": "Enhances keyboard-only accessibility according to WCAG 2.1 guideline 2.1 Keyboard Accessible.",
+                    "apply_fn": self._apply_keyboard_shortcuts
+                })
+
+        # 8. Frontend Formatters: Add formatRelativeTime helper
+        fmt_js_path = self.workspace_root / "src" / "frontend" / "js" / "utils" / "formatters.js"
+        if fmt_js_path.exists() and "HEURISTIC_FORMAT_RELATIVE_TIME" not in completed_task_ids:
+            content = fmt_js_path.read_text(encoding="utf-8")
+            if "formatRelativeTime" not in content:
+                opportunities.append({
+                    "id": "HEURISTIC_FORMAT_RELATIVE_TIME",
+                    "file_path": "src/frontend/js/utils/formatters.js",
+                    "category": "UI_POLISH",
+                    "task_summary": "Add human-readable formatRelativeTime utility for live telemetry feeds",
+                    "commit_message": "feat(formatters): add formatRelativeTime utility for real-time telemetry",
+                    "justification": "Converts UTC timestamps to intuitive relative time strings (e.g., '2m ago').",
+                    "apply_fn": self._apply_format_relative_time
+                })
+
+        # 9. Test Suite: Add unit test verifying formatRelativeTime
+        test_fmt_path = self.workspace_root / "tests" / "test_frontend_logic.py"
+        if test_fmt_path.exists() and "HEURISTIC_TEST_FORMATTERS" not in completed_task_ids:
+            content = test_fmt_path.read_text(encoding="utf-8")
+            if "test_formatters_presence" not in content:
+                opportunities.append({
+                    "id": "HEURISTIC_TEST_FORMATTERS",
+                    "file_path": "tests/test_frontend_logic.py",
                     "category": "TEST_EXPANSION",
-                    "task_summary": "Add unit test verifying mobile touch target accessibility standards",
-                    "commit_message": "test(a11y): add automated verification test for mobile touch targets",
-                    "justification": "Guarantees continuous regression testing for WCAG 2.1 touch target compliance.",
-                    "apply_fn": self._apply_test_expansion_a11y
+                    "task_summary": "Add automated unit tests verifying formatters and helper presence",
+                    "commit_message": "test(frontend): add unit tests verifying telemetry formatters",
+                    "justification": "Maintains 100% test coverage over formatting helper logic.",
+                    "apply_fn": self._apply_test_formatters
                 })
 
         return opportunities
+
+    def _apply_backend_status_filter(self) -> bool:
+        path = self.workspace_root / "src" / "backend" / "handlers.py"
+        content = path.read_text(encoding="utf-8")
+        # Ensure Optional is imported
+        if "from typing import Dict, Any, List, Tuple" in content and "Optional" not in content:
+            content = content.replace(
+                "from typing import Dict, Any, List, Tuple",
+                "from typing import Dict, Any, List, Tuple, Optional"
+            )
+        target = "def get_all_tasks() -> Tuple[int, Dict[str, Any]]:\n    return 200, [t.to_dict() for t in _TASKS_STORE]"
+        replacement = """def get_all_tasks(status_filter: Optional[str] = None) -> Tuple[int, List[Dict[str, Any]]]:
+    if status_filter:
+        filtered = [t.to_dict() for t in _TASKS_STORE if t.status == status_filter]
+        return 200, filtered
+    return 200, [t.to_dict() for t in _TASKS_STORE]"""
+        if target in content:
+            new_content = content.replace(target, replacement)
+            path.write_text(new_content, encoding="utf-8")
+            return True
+        return False
+
+    def _apply_keyboard_shortcuts(self) -> bool:
+        path = self.workspace_root / "src" / "frontend" / "js" / "app.js"
+        content = path.read_text(encoding="utf-8")
+        method = """
+  setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modal = qs('#taskModal');
+        if (modal && modal.classList.contains('open')) {
+          modal.classList.remove('open');
+          modal.setAttribute('aria-hidden', 'true');
+        }
+      } else if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+        e.preventDefault();
+        const search = qs('#globalSearch');
+        if (search) search.focus();
+      }
+    });
+  }
+"""
+        target = "    this.setupFilters();\n    await this.refreshData();"
+        replacement = "    this.setupFilters();\n    this.setupKeyboardShortcuts();\n    await this.refreshData();"
+        if target in content:
+            new_content = content.replace(target, replacement)
+            new_content = new_content.replace("  setupFilters() {", method + "\n  setupFilters() {")
+            path.write_text(new_content, encoding="utf-8")
+            return True
+        return False
+
+    def _apply_format_relative_time(self) -> bool:
+        path = self.workspace_root / "src" / "frontend" / "js" / "utils" / "formatters.js"
+        content = path.read_text(encoding="utf-8")
+        helper = """
+export const formatRelativeTime = (isoString) => {
+  if (!isoString) return 'just now';
+  try {
+    const diffMs = Date.now() - new Date(isoString).getTime();
+    const diffSec = Math.floor(diffMs / 1000);
+    if (diffSec < 60) return `${Math.max(1, diffSec)}s ago`;
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) return `${diffMin}m ago`;
+    const diffHr = Math.floor(diffMin / 60);
+    if (diffHr < 24) return `${diffHr}h ago`;
+    return `${Math.floor(diffHr / 24)}d ago`;
+  } catch {
+    return 'recently';
+  }
+};
+"""
+        new_content = content.strip() + "\n" + helper
+        path.write_text(new_content, encoding="utf-8")
+        return True
+
+    def _apply_test_formatters(self) -> bool:
+        path = self.workspace_root / "tests" / "test_frontend_logic.py"
+        content = path.read_text(encoding="utf-8")
+        test_method = """
+    def test_formatters_presence(self):
+        fmt_path = Path(__file__).resolve().parent.parent / "src" / "frontend" / "js" / "utils" / "formatters.js"
+        content = fmt_path.read_text(encoding="utf-8")
+        self.assertIn("formatRelativeTime", content)
+        self.assertIn("formatCategory", content)
+"""
+        target = 'if __name__ == "__main__":'
+        replacement = test_method + '\n\nif __name__ == "__main__":'
+        if target in content and "test_formatters_presence" not in content:
+            path.write_text(content.replace(target, replacement), encoding="utf-8")
+            return True
+        return False
 
     def _apply_responsive_touch_targets(self) -> bool:
         path = self.workspace_root / "src" / "frontend" / "css" / "responsive.css"
