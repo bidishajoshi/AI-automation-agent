@@ -1,0 +1,26 @@
+{
+  "agent_name": "AutonomousDevOpsAgent",
+  "version": "1.0.0",
+  "daily_target_commits": 4,
+  "max_daily_commits": 10,
+  "default_model": "gemini-2.5-flash",
+  "fallback_model": "gemini-1.5-flash",
+  "temperature": 0.2,
+  "protected_paths": [
+    ".env",
+    ".env.*",
+    ".git",
+    ".github/workflows",
+    "package-lock.json"
+  ],
+  "scannable_extensions": [
+    ".html",
+    ".css",
+    ".js",
+    ".py",
+    ".json",
+    ".md"
+  ],
+  "max_repair_retries": 1,
+  "test_command": "python -m unittest discover tests"
+}

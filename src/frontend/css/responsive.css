@@ -1,0 +1,90 @@
+/* ==========================================================================
+   Responsive Layout & Media Queries - DevPulse
+   ========================================================================== */
+
+/* Tablet & Smaller Screens (< 1024px) */
+@media (max-width: 1024px) {
+  .app-sidebar {
+    position: fixed;
+    top: 64px;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .app-sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  .kanban-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .header-center {
+    max-width: 320px;
+  }
+}
+
+/* Mobile Screens (< 768px) */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0 var(--spacing-md);
+  }
+
+  .header-center {
+    display: none; /* Hide global search input on mobile */
+  }
+
+  .app-main {
+    padding: var(--spacing-md);
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-group {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .kanban-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .live-status-pill .status-label {
+    display: none; /* Collapse text on mobile to save header space */
+  }
+
+  .live-status-pill {
+    padding: 4px;
+  }
+}
+
+/* Small Handhelds (< 480px) */
+@media (max-width: 480px) {
+  .modal-card {
+    padding: var(--spacing-md);
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+  }
+}

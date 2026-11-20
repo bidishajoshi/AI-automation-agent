@@ -1,0 +1,22 @@
+{
+  "name": "devpulse",
+  "version": "1.0.0",
+  "description": "DevPulse - Autonomous Cloud Operations & Task Matrix",
+  "main": "src/frontend/js/app.js",
+  "type": "module",
+  "scripts": {
+    "start": "python src/backend/server.py",
+    "test": "python -m unittest discover tests",
+    "agent:run": "python .github/agent/autonomous_agent.py --target-commits 4",
+    "agent:dry-run": "python .github/agent/autonomous_agent.py --dry-run"
+  },
+  "keywords": [
+    "autonomous-agent",
+    "devops",
+    "github-actions",
+    "ai-agent",
+    "cloud-automation"
+  ],
+  "author": "Autonomous AI DevOps Engineer",
+  "license": "MIT"
+}

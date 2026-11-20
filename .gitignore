@@ -1,0 +1,38 @@
+# System & Environment Files
+.env
+.env.*
+!.env.example
+*.local
+
+# Node & Frontend dependencies
+node_modules/
+dist/
+build/
+.cache/
+.parcel-cache/
+
+# Python Cache & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.lnk
+
+# Test & Coverage Outputs
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Temporary and Scratch files
+*.tmp
+*.log

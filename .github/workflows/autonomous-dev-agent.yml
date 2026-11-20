@@ -1,0 +1,102 @@
+name: "24/7 Autonomous AI Contribution Agent"
+
+on:
+  schedule:
+    # Runs automatically every day at 02:00 UTC (no laptop / Antigravity needed)
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      target_commits:
+        description: 'Target commits to produce (1-10)'
+        required: false
+        default: '4'
+      dry_run:
+        description: 'Simulate without committing/pushing (true/false)'
+        type: boolean
+        required: false
+        default: false
+      model:
+        description: 'AI Model'
+        required: false
+        default: 'gemini-2.5-flash'
+
+# Require write permissions to commit changes and push back to repository
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: autonomous-agent-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  autonomous-development:
+    name: "Autonomous AI Dev & Commit Pipeline"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: "Checkout Repository with Full History"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Set up Python Environment (v3.12)"
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: "Set up Node.js Environment (v20)"
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: "Configure Git Identity"
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: "Pull Latest Changes Safely (Rebase)"
+        run: |
+          git pull --rebase origin ${{ github.ref_name || 'main' }}
+
+      - name: "Run Pre-Flight Test Suite Baseline"
+        run: |
+          echo "Running pre-flight baseline test verification..."
+          python -m unittest discover tests
+
+      - name: "Execute Autonomous AI Agent"
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_ACTIONS: "true"
+          TARGET_COMMITS: ${{ github.event.inputs.target_commits || '4' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          MODEL_NAME: ${{ github.event.inputs.model || 'gemini-2.5-flash' }}
+        run: |
+          DRY_FLAG=""
+          if [ "$DRY_RUN" = "true" ]; then
+            DRY_FLAG="--dry-run"
+          fi
+          
+          python .github/agent/autonomous_agent.py \
+            --target-commits "$TARGET_COMMITS" \
+            --model "$MODEL_NAME" \
+            $DRY_FLAG
+
+      - name: "Push Validated Changes to GitHub"
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          echo "Ensuring no upstream drift before final push..."
+          git pull --rebase origin ${{ github.ref_name || 'main' }} || true
+          git push origin ${{ github.ref_name || 'main' }}
+
+      - name: "Upload Daily Activity Report Artifact"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-activity-reports
+          path: reports/daily/*.md
+          retention-days: 30
