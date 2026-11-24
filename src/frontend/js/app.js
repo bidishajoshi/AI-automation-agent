@@ -36,7 +36,8 @@ class App {
     const sidebar = qs('#appSidebar');
     if (toggleBtn && sidebar) {
       on(toggleBtn, 'click', () => {
-        sidebar.classList.toggle('sidebar-open');
+        const isOpen = sidebar.classList.toggle('sidebar-open');
+        toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
       });
     }
 
@@ -52,7 +53,10 @@ class App {
         link.classList.add('active');
 
         // Close sidebar on mobile
-        if (sidebar) sidebar.classList.remove('sidebar-open');
+        if (sidebar) {
+          sidebar.classList.remove('sidebar-open');
+          if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+        }
       });
     });
 
@@ -162,6 +166,12 @@ class App {
         if (modal && modal.classList.contains('open')) {
           modal.classList.remove('open');
           modal.setAttribute('aria-hidden', 'true');
+        }
+        const sidebar = qs('#appSidebar');
+        if (sidebar && sidebar.classList.contains('sidebar-open')) {
+          sidebar.classList.remove('sidebar-open');
+          const toggleBtn = qs('#sidebarToggle');
+          if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
         }
       } else if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
         e.preventDefault();
