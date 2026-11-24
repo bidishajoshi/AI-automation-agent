@@ -50,6 +50,13 @@ class TestAccessibilityAndCSS(unittest.TestCase):
 
 
 
+    def test_theme_toggle_accessibility(self):
+        """Ensure theme toggle button has proper accessibility aria attributes."""
+        self.assertIn('id="themeToggleBtn"', self.html_content)
+        theme_js = (self.root_dir / "src" / "frontend" / "js" / "components" / "themeManager.js").read_text(encoding="utf-8")
+        self.assertIn('toggleBtn.setAttribute', theme_js)
+        self.assertIn('aria-label', theme_js)
+
     def test_mobile_touch_targets(self):
         """Verify mobile buttons and inputs define minimum 44px touch targets."""
         if 'min-height: 44px' in self.responsive_css:
