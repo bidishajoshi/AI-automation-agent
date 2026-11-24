@@ -74,7 +74,10 @@ class App {
       if (historySection) historySection.style.display = 'none';
     } else if (view === 'history' || view === 'analytics') {
       if (dashboardSection) dashboardSection.style.display = 'none';
-      if (historySection) historySection.style.display = 'block';
+      if (historySection) {
+        historySection.style.display = 'block';
+        if (this.history) this.analytics.renderHistory(this.history);
+      }
     }
   }
 
@@ -178,13 +181,16 @@ class App {
   }
 
   async refreshData() {
-    const [tasks, metrics] = await Promise.all([
+    const [tasks, metrics, history] = await Promise.all([
       this.api.getTasks(),
-      this.api.getMetrics()
+      this.api.getMetrics(),
+      this.api.getHistory()
     ]);
     this.tasks = tasks;
+    this.history = history;
     this.taskBoard.renderTasks(this.tasks);
     this.dashboard.updateMetrics(metrics);
+    this.analytics.renderHistory(this.history);
   }
 }
 

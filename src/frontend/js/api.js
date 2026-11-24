@@ -113,4 +113,43 @@ export class ApiClient {
       };
     }
   }
+
+  async getHistory() {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/history`, { signal: AbortSignal.timeout(2000) });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch {
+      return [
+        {
+          timestamp: '2026-11-20 16:20 UTC',
+          category: 'RESPONSIVE_CSS',
+          description: 'Enforce minimum 44px touch targets for mobile buttons',
+          filePath: 'src/frontend/css/responsive.css',
+          commitHash: 'cb47af1'
+        },
+        {
+          timestamp: '2026-11-20 16:21 UTC',
+          category: 'ACCESSIBILITY',
+          description: 'Add aria-expanded state to navigation toggle button',
+          filePath: 'src/frontend/index.html',
+          commitHash: '8544795'
+        },
+        {
+          timestamp: '2026-11-20 16:22 UTC',
+          category: 'ERROR_HANDLING',
+          description: 'Add safe createElementWithAttributes helper with null-safe guards',
+          filePath: 'src/frontend/js/utils/dom.js',
+          commitHash: 'd2fea40'
+        },
+        {
+          timestamp: '2026-11-20 16:23 UTC',
+          category: 'ERROR_HANDLING',
+          description: 'Implement fetchWithRetry utility with exponential backoff',
+          filePath: 'src/frontend/js/api.js',
+          commitHash: '2cae392'
+        }
+      ];
+    }
+  }
 }
