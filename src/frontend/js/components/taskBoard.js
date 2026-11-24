@@ -23,6 +23,10 @@ export class TaskBoard {
   }
 
   renderTasks(tasks, priorityFilter = 'ALL') {
+    if (!Array.isArray(tasks)) {
+      tasks = [];
+    }
+
     // Reset columns
     Object.values(this.columns).forEach(col => {
       if (col) col.innerHTML = '';
@@ -58,6 +62,17 @@ export class TaskBoard {
       `;
 
       col.appendChild(card);
+    });
+
+    // Render empty state if a column has no cards
+    Object.keys(this.columns).forEach(status => {
+      const col = this.columns[status];
+      if (col && counts[status] === 0) {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'column-empty-state';
+        placeholder.textContent = 'No tasks in this stage';
+        col.appendChild(placeholder);
+      }
     });
 
     // Update counters
