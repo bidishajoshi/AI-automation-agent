@@ -15,6 +15,13 @@ class TestBackendApi(unittest.TestCase):
         self.assertGreaterEqual(len(tasks), 1)
         self.assertIn("title", tasks[0])
 
+    def test_get_all_tasks_with_status_filter(self):
+        status, done_tasks = get_all_tasks(status_filter="DONE")
+        self.assertEqual(status, 200)
+        self.assertIsInstance(done_tasks, list)
+        for task in done_tasks:
+            self.assertEqual(task["status"], "DONE")
+
     def test_create_task_success(self):
         payload = {
             "title": "Add test coverage for responsive navigation",

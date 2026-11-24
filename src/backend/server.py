@@ -8,7 +8,7 @@ import json
 import os
 import sys
 from http.server import SimpleHTTPRequestHandler, HTTPServer
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 from src.backend.handlers import get_all_tasks, create_task, get_system_metrics
 
@@ -23,7 +23,9 @@ class DevPulseHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
         if parsed.path == "/api/tasks":
-            status, data = get_all_tasks()
+            query_params = parse_qs(parsed.query)
+            status_filter = query_params.get("status", [None])[0]
+            status, data = get_all_tasks(status_filter=status_filter)
             self._send_json(status, data)
         elif parsed.path == "/api/metrics":
             status, data = get_system_metrics()

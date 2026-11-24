@@ -3,7 +3,7 @@ DevPulse Backend Route Handlers & Business Logic
 """
 
 import json
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 from src.backend.models import TaskModel, SystemMetrics
 
 # In-memory storage with initial bootstrap records
@@ -45,7 +45,10 @@ _TASKS_STORE: List[TaskModel] = [
 _METRICS_STORE = SystemMetrics()
 
 
-def get_all_tasks() -> Tuple[int, Dict[str, Any]]:
+def get_all_tasks(status_filter: Optional[str] = None) -> Tuple[int, List[Dict[str, Any]]]:
+    if status_filter:
+        filtered = [t.to_dict() for t in _TASKS_STORE if t.status == status_filter]
+        return 200, filtered
     return 200, [t.to_dict() for t in _TASKS_STORE]
 
 
