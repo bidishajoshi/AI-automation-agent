@@ -2,7 +2,19 @@
  * Validator Utilities - Form and payload input validation
  */
 
+export const sanitizeInput = (text) => {
+  if (typeof text !== 'string') return '';
+  return text.replace(/[<>]/g, '').trim();
+};
+
 export const validateTaskInput = (data) => {
+  if (!data || typeof data !== 'object') {
+    return {
+      isValid: false,
+      errors: { form: 'Input payload must be a non-null object' }
+    };
+  }
+
   const errors = {};
 
   if (!data.title || typeof data.title !== 'string' || data.title.trim().length < 5) {
@@ -25,6 +37,13 @@ export const validateTaskInput = (data) => {
   const validPriorities = ['HIGH', 'MEDIUM', 'LOW'];
   if (!data.priority || !validPriorities.includes(data.priority)) {
     errors.priority = 'Invalid task priority';
+  }
+
+  if (data.targetFile && typeof data.targetFile === 'string') {
+    const trimmed = data.targetFile.trim();
+    if (trimmed.includes('..') || /[<>:"|?*]/.test(trimmed)) {
+      errors.targetFile = 'Target file path contains invalid characters or traversal sequence';
+    }
   }
 
   return {

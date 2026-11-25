@@ -34,6 +34,8 @@ class TestFrontendLogic(unittest.TestCase):
         validator_path = Path(__file__).resolve().parent.parent / "src" / "frontend" / "js" / "utils" / "validator.js"
         content = validator_path.read_text(encoding="utf-8")
         self.assertIn("validateTaskInput", content)
+        self.assertIn("sanitizeInput", content)
+        self.assertIn("Input payload must be a non-null object", content)
         self.assertIn("RESPONSIVE_CSS", content)
         self.assertIn("ACCESSIBILITY", content)
 
