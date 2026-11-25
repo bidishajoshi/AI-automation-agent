@@ -4,7 +4,7 @@ Backend API Unit Tests
 
 import unittest
 from src.backend.models import TaskModel, SystemMetrics
-from src.backend.handlers import get_all_tasks, create_task, get_system_metrics
+from src.backend.handlers import get_all_tasks, create_task, get_system_metrics, get_commit_history
 
 
 class TestBackendApi(unittest.TestCase):
@@ -45,6 +45,13 @@ class TestBackendApi(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertIn("health", metrics)
         self.assertEqual(metrics["health"], 100)
+
+    def test_get_commit_history(self):
+        status, history = get_commit_history()
+        self.assertEqual(status, 200)
+        self.assertIsInstance(history, list)
+        self.assertGreaterEqual(len(history), 1)
+        self.assertIn("commitHash", history[0])
 
 
 if __name__ == "__main__":

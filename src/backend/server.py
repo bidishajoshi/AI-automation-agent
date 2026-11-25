@@ -10,7 +10,7 @@ import sys
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 
-from src.backend.handlers import get_all_tasks, create_task, get_system_metrics
+from src.backend.handlers import get_all_tasks, create_task, get_system_metrics, get_commit_history
 
 PORT = int(os.environ.get("PORT", 8000))
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend"))
@@ -29,6 +29,9 @@ class DevPulseHandler(SimpleHTTPRequestHandler):
             self._send_json(status, data)
         elif parsed.path == "/api/metrics":
             status, data = get_system_metrics()
+            self._send_json(status, data)
+        elif parsed.path == "/api/history":
+            status, data = get_commit_history()
             self._send_json(status, data)
         elif parsed.path == "/api/health":
             self._send_json(200, {"status": "healthy", "service": "DevPulse Backend"})
