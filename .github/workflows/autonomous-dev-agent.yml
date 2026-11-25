@@ -2,7 +2,7 @@ name: "24/7 Autonomous AI Contribution Agent"
 
 on:
   schedule:
-    # Runs automatically every day at 02:00 UTC (no laptop / Antigravity needed)
+    # Runs automatically every day at 02:00 UTC (07:45 AM Asia/Kathmandu — no laptop / Antigravity needed)
     - cron: '0 2 * * *'
   workflow_dispatch:
     inputs:
@@ -20,7 +20,7 @@ on:
         required: false
         default: 'gemini-2.5-flash'
 
-# Require write permissions to commit changes and push back to repository
+# Least-privilege permissions required to commit validated changes and publish reports
 permissions:
   contents: write
   pull-requests: write
@@ -60,12 +60,13 @@ jobs:
 
       - name: "Pull Latest Changes Safely (Rebase)"
         run: |
-          git pull --rebase origin ${{ github.ref_name || 'main' }}
+          BRANCH="${{ github.ref_name || 'main' }}"
+          git pull --rebase origin "$BRANCH"
 
       - name: "Run Pre-Flight Test Suite Baseline"
         run: |
           echo "Running pre-flight baseline test verification..."
-          python -m unittest discover tests
+          python -m unittest discover tests -v
 
       - name: "Execute Autonomous AI Agent"
         env:
@@ -76,11 +77,15 @@ jobs:
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
           MODEL_NAME: ${{ github.event.inputs.model || 'gemini-2.5-flash' }}
         run: |
+          if [ -z "$GEMINI_API_KEY" ] && [ -z "$OPENAI_API_KEY" ]; then
+            echo "::warning::Neither GEMINI_API_KEY nor OPENAI_API_KEY secret is configured. Add GEMINI_API_KEY in Repo Settings -> Secrets -> Actions for daily AI-driven commits."
+          fi
+
           DRY_FLAG=""
           if [ "$DRY_RUN" = "true" ]; then
             DRY_FLAG="--dry-run"
           fi
-          
+
           python .github/agent/autonomous_agent.py \
             --target-commits "$TARGET_COMMITS" \
             --model "$MODEL_NAME" \
@@ -89,9 +94,15 @@ jobs:
       - name: "Push Validated Changes to GitHub"
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
-          echo "Ensuring no upstream drift before final push..."
-          git pull --rebase origin ${{ github.ref_name || 'main' }} || true
-          git push origin ${{ github.ref_name || 'main' }}
+          BRANCH="${{ github.ref_name || 'main' }}"
+          AHEAD_COUNT="$(git rev-list --count "origin/${BRANCH}..HEAD")"
+          if [ "$AHEAD_COUNT" -gt 0 ]; then
+            echo "Pushing $AHEAD_COUNT validated commit(s) to origin/${BRANCH}..."
+            git pull --rebase --autostash origin "$BRANCH"
+            git push origin "$BRANCH"
+          else
+            echo "No new commits created in this run; skipping push."
+          fi
 
       - name: "Upload Daily Activity Report Artifact"
         if: always()
