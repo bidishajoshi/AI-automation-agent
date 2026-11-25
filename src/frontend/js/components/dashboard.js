@@ -13,9 +13,28 @@ export class Dashboard {
   }
 
   updateMetrics(metrics) {
+    if (!metrics || typeof metrics !== 'object') {
+      return;
+    }
+
     if (this.healthElem && metrics.health !== undefined) {
       this.healthElem.textContent = `${metrics.health}%`;
     }
+
+    const healthTrend = qs('#cardHealth .stat-trend');
+    if (healthTrend && metrics.health !== undefined) {
+      if (metrics.health >= 100) {
+        healthTrend.textContent = 'All Tests Passing';
+        healthTrend.className = 'stat-trend positive';
+      } else if (metrics.health >= 80) {
+        healthTrend.textContent = 'Degraded Health';
+        healthTrend.className = 'stat-trend neutral';
+      } else {
+        healthTrend.textContent = 'Attention Required';
+        healthTrend.className = 'stat-trend negative';
+      }
+    }
+
     if (this.commitElem && metrics.commits !== undefined) {
       this.commitElem.textContent = `${metrics.commits} / ${metrics.target || 4}`;
     }
