@@ -1,24 +1,30 @@
 {
   "agent_name": "AutonomousDevOpsAgent",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "daily_target_commits": 4,
   "max_daily_commits": 10,
   "default_model": "gemini-2.5-flash",
-  "fallback_model": "gemini-1.5-flash",
+  "fallback_models": [
+    "gemini-2.0-flash",
+    "gemini-1.5-flash"
+  ],
+  "openai_model": "gpt-4o-mini",
   "temperature": 0.2,
   "protected_paths": [
     ".env",
     ".env.*",
+    ".env.example",
     ".git",
     ".github/workflows",
-    "package-lock.json"
+    ".github/agent_memory.json",
+    "package-lock.json",
+    "reports/"
   ],
   "scannable_extensions": [
     ".html",
     ".css",
     ".js",
     ".py",
-    ".json",
     ".md"
   ],
   "max_repair_retries": 1,
