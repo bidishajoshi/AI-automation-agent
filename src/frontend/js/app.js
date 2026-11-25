@@ -34,11 +34,24 @@ class App {
     // Sidebar responsive toggle
     const toggleBtn = qs('#sidebarToggle');
     const sidebar = qs('#appSidebar');
+    const backdrop = qs('#sidebarBackdrop');
+
+    const closeSidebar = () => {
+      if (sidebar && sidebar.classList.contains('sidebar-open')) {
+        sidebar.classList.remove('sidebar-open');
+        if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+      }
+    };
+
     if (toggleBtn && sidebar) {
       on(toggleBtn, 'click', () => {
         const isOpen = sidebar.classList.toggle('sidebar-open');
         toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
       });
+    }
+
+    if (backdrop) {
+      on(backdrop, 'click', closeSidebar);
     }
 
     // View switching
